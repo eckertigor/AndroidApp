@@ -21,12 +21,24 @@ import android.os.Bundle;
 import android.app.ListActivity;
 import android.widget.ArrayAdapter;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.json.simple.JSONObject;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 
 public class MainActivity extends Activity {
+
+
+    static {
+        System.loadLibrary("hello");
+    }
+
     NumberPicker noPicker = null;
     ListView listView = null;
     public int num1 = 0 ;
@@ -38,7 +50,10 @@ public class MainActivity extends Activity {
         //number picker
 
     }
-    public void onClickFind(View v) {
+
+    public native String stringFromJNI(int numberPickerMinValue, int numberPickerMaxValue, int[] activityNum);
+
+    public void onClickFind(View v) throws ParseException {
         int size=0;
         for (int i = 0; i < check.checkedItems.length; i++) {
             if (check.checkedItems[i]) {
@@ -48,10 +63,14 @@ public class MainActivity extends Activity {
         int[] tempArray = new int[size];
         tempArray = Arrays.copyOf(check.activityNum, size);
         Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+
+        TextView text2 = (TextView)findViewById(R.id.textView4);
+        String result = stringFromJNI(check.numberPickerMinValue, check.numberPickerMaxValue, tempArray);
+        text2.setText(result);
         intent.putExtra("numberPickerMinValue", check.numberPickerMinValue);
         intent.putExtra("numberPickerMaxValue", check.numberPickerMaxValue);
         Bundle bundle = new Bundle();
-        bundle.putIntArray("activityNum", tempArray);
+        bundle.putString("activityNum", result);
         intent.putExtras(bundle);
         //   intent.putExtra("activityNum", check.a);
         //intent.putExtra("checkedItems", check.checkedItems);

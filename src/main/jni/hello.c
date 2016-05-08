@@ -13,15 +13,13 @@
 #include "json_object.h"
 
 JNIEXPORT jstring JNICALL
-Java_com_example_ekkert_myapplication_Main2Activity_stringFromJNI(JNIEnv *env, jobject instance, int numberPickerMinValue,
-                                                                  int numberPickerMaxValue, jintArray jArray) {
+Java_com_example_ekkert_myapplication_MainActivity_stringFromJNI(JNIEnv *env, jobject instance, int numberPickerMinValue,
+                                                                 int numberPickerMaxValue, jintArray jArray) {
     int sock;
-    jstring string[100];
     struct sockaddr_in server;
     int minWeather = numberPickerMinValue;
     int maxWeather = numberPickerMaxValue;
-    char message[5] = "12345";
-    char *server_reply =(char *) malloc(300*sizeof(char));
+    jstring result = 0;
 
     json_object * jobj = json_object_new_object();
     json_object *jlower_temp = json_object_new_int(minWeather);
@@ -42,10 +40,11 @@ Java_com_example_ekkert_myapplication_Main2Activity_stringFromJNI(JNIEnv *env, j
     json_object_object_add(jobj,"lt", jlower_temp);
     json_object_object_add(jobj,"ut", jupper_temp);
     json_object_object_add(jobj,"act", jactivity);
+   // size_t *header = (size_t *)malloc(sizeof(size_t));
+    int *headerr = (int *)malloc(sizeof(int));
 
-    size_t *header = malloc(sizeof(size_t));
-    *header = strlen(json_object_to_json_string(jobj));
-
+    //*header = strlen(json_object_to_json_string(jobj));
+    *headerr = strlen(json_object_to_json_string(jobj));
     // json_object *jactivites_temp = json_object_new_string(checked);
 
     //json_object_object_add(jobj,"items", jactivites_temp);
@@ -68,44 +67,30 @@ Java_com_example_ekkert_myapplication_Main2Activity_stringFromJNI(JNIEnv *env, j
         return (*env)->NewStringUTF(env, "Connection to server failed");
 
     }
-
-
     //keep communicating with server
-    if (write(sock, header, sizeof(size_t)) < 0) {
+    if (write(sock, headerr, sizeof(int)) < 0) {
         return (*env)->NewStringUTF(env, "send header failed");
     }
 
     if (write(sock, json_object_to_json_string(jobj), strlen(json_object_to_json_string(jobj))) < 0) {
         return (*env)->NewStringUTF(env, "send failed");
     }
-    //Send some data
-    /* if (send(sock, json_object_to_json_string(jobj), strlen(json_object_to_json_string(jobj)), 0) < 0) {
-         return (*env)->NewStringUTF(env, "send failed");
-     }*/
+   // int *headerr = (int *)malloc(sizeof(int));
 
-    // send(sock, json_object_to_json_string(jobj), 10, 0);
-    // int n = read(sock , server_reply , 300);
-    //Receive a reply from the server
-    /*if( n < 0)
-    {
-        return (*env)->NewStringUTF(env, "receive failed");
-    }*/
-    int n;
-    n = read(sock, header,sizeof(size_t));
-    if (n < 0)
-        return (*env)->NewStringUTF(env, "ERROR reading from socket");
-
-    char *response = malloc(*header);
-    n = read(sock, response, *header);
+    int n = read(sock,headerr, sizeof(int));
     if (n < 0) {
+        return (*env)->NewStringUTF(env, "ERROR reading header from socket");
+    }
+    char *response = (char *)malloc(*headerr);
+    int k = read(sock, response, *headerr);
+    if (k < 0) {
         return (*env)->NewStringUTF(env, "ERROR reading from socket");
     }
+    //close(sock);
+    //free(*headerr);
+   // shutdown(sock, 2);
     return (*env)->NewStringUTF(env, response);
 
-    //puts("Server reply :");
-    //}
-
-    close(sock);
     return 0;
 
     //return (*env)->NewStringUTF(env, "dsds");

@@ -1,0 +1,46 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+    defaultConfig {
+        applicationId "com.example.ekkert.myapplication"
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            moduleName "hello"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+       /* arm {
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
+        x86 {
+            ndk {
+                abiFilter "x86"
+            }
+        }*/
+    }
+}
+
+dependencies {
+    compile 'com.android.support:multidex:1.0.1'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile 'junit:junit:4.10'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+}
